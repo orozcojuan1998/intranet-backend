@@ -69,6 +69,7 @@ public class OrdenCalibracionService {
             certificado.setObservaciones(observaciones);
             if (approvedBy != null) {
                 certificado.setApprovedBy(approvedBy);
+                certificado.setFechaCreacion((LocalDateTime.now().toLocalDate()));
             }
             orden.get().setCertificado(certificado);
             return ordenRepository.save(orden.get());
@@ -78,7 +79,7 @@ public class OrdenCalibracionService {
 
     @Transactional
     public OrdenCalibracion createRMAForCertificate(MultipartFile certificadoFile, String rma, String nit, String nombreEquipo, String marca, String modelo, String serial, String codigo) {
-        final String pass = nit.isEmpty() ? String.valueOf(UUID.randomUUID()) : nit.replaceAll("[.,\\s]", "");
+        final String pass = nit.isEmpty() ? String.valueOf(UUID.randomUUID()).substring(0,10) : nit.replaceAll("[.,\\s]", "");
         log.info("Iniciando registro del equipo en el sistema");
         Equipo equipo = Equipo.builder().nombre(nombreEquipo)
                 .marca(marca).modelo(modelo).serial(serial).codigoInterno(codigo)
@@ -88,7 +89,6 @@ public class OrdenCalibracionService {
         UploadCertificateResponse datosCertificado = filesService.save(certificadoFile, pass);
         Certificado certificado = Certificado.builder().idCertificado(datosCertificado.getKey())
                 .url(datosCertificado.getPublicUrl()).pass(pass).estado(REVISION_ESTADO)
-                .fechaCreacion(LocalDateTime.now().toLocalDate())
                 .build();
         log.info("Finalización subida certificado");
 
@@ -129,6 +129,9 @@ public class OrdenCalibracionService {
         if (ordenesCalibracion.size() > 0) log.info("Se han encontrado ordenes que cumplan la condicion");
         ordenesCalibracion.forEach(orden -> {
             OrderCalibracionResponse ordenResponse = new OrderCalibracionResponse(orden.getId(), orden.getRma(), orden.getCertificado().getIdCertificado(), orden.getEquipo().getNombre(), orden.getCertificado().getEstado());
+            if (orden.getCertificado().getFechaCreacion() != null){
+                ordenResponse.setFechaAprobacion(orden.getCertificado().getFechaCreacion());
+            }
             ordenesState.add(ordenResponse);
         });
         return ordenesState;
