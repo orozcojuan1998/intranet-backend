@@ -25,6 +25,7 @@ public class Certificado {
     private String pass;
     private String approvedBy;
     private LocalDate fechaCreacion;
+    private LocalDate fechaSubida;
     private String observaciones;
 
     public Certificado(){}

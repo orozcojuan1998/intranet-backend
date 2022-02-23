@@ -64,7 +64,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             OutputStream os = new FileOutputStream(myFile);
             os.write(file.getBytes());
             PDDocument pdd = PDDocument.load(myFile);
+
             pdd.protect(stpp);
+            // pdd.saveIncremental(os);
             pdd.save(root + File.separator + Objects.requireNonNull(file.getOriginalFilename()));
             log.info("Finishing securing the document");
             boolean wasFileUploaded = saveToS3(new File(root + File.separator + fileName), uploadCertificateResponse);

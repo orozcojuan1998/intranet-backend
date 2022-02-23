@@ -25,7 +25,7 @@ public class OrderCalibraciónController {
 
     private final List<String> CERT_REVIEW = List.of("REVISION", "RECHAZADO_TECNICA", "NUEVA_REVISION");
     private final List<String> CERT_REVIEW_CORRECTION = List.of("NECESITA_CORRECCION");
-    private final List<String> CERT_APPROVED = List.of("APROBADO_ADMIN");
+    private final List<String> CERT_APPROVED = List.of("REVISADO");
 
     @Autowired
     OrdenCalibracionService ordenCalibracionService;

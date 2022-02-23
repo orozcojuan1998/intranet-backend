@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +38,7 @@ public class OrdenCalibracionService {
     }
 
     public Optional<OrdenCalibracion> getOrdenById(String id) {
-        if (ordenRepository.findById(Long.valueOf(id)).isPresent()) {
-            return ordenRepository.findById(Long.valueOf(id));
-        }
+        ordenRepository.findById(Long.valueOf(id));
         return ordenRepository.findById(Long.valueOf(id));
     }
 
@@ -60,7 +57,6 @@ public class OrdenCalibracionService {
             String observacionesPrevias = orden.get().getCertificado().getObservaciones();
             if (observacionesPrevias == null || observacionesPrevias.isEmpty()) {
                 observaciones = observaciones.replace("null", "").replace("\n", "").replace("\r", "");
-                ;
                 log.info("No se han encontrado observaciones previas...");
             }
 
@@ -69,7 +65,7 @@ public class OrdenCalibracionService {
             certificado.setObservaciones(observaciones);
             if (approvedBy != null) {
                 certificado.setApprovedBy(approvedBy);
-                certificado.setFechaCreacion((LocalDateTime.now().toLocalDate()));
+                certificado.setFechaCreacion(LocalDateTime.now().toLocalDate());
             }
             orden.get().setCertificado(certificado);
             return ordenRepository.save(orden.get());
@@ -79,7 +75,7 @@ public class OrdenCalibracionService {
 
     @Transactional
     public OrdenCalibracion createRMAForCertificate(MultipartFile certificadoFile, String rma, String nit, String nombreEquipo, String marca, String modelo, String serial, String codigo) {
-        final String pass = nit.isEmpty() ? String.valueOf(UUID.randomUUID()).substring(0,10) : nit.replaceAll("[.,\\s]", "");
+        final String pass =  nit.replaceAll("[-.,\\s]", "");
         log.info("Iniciando registro del equipo en el sistema");
         Equipo equipo = Equipo.builder().nombre(nombreEquipo)
                 .marca(marca).modelo(modelo).serial(serial).codigoInterno(codigo)
@@ -89,6 +85,7 @@ public class OrdenCalibracionService {
         UploadCertificateResponse datosCertificado = filesService.save(certificadoFile, pass);
         Certificado certificado = Certificado.builder().idCertificado(datosCertificado.getKey())
                 .url(datosCertificado.getPublicUrl()).pass(pass).estado(REVISION_ESTADO)
+                .fechaSubida(LocalDateTime.now().toLocalDate())
                 .build();
         log.info("Finalización subida certificado");
 
