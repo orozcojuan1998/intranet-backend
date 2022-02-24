@@ -130,12 +130,12 @@ public class OrderCalibraciónController {
     }
 
     @PostMapping(value = "/review/update")
-    public ResponseEntity<OrdenCalibrationCertificateResponse> updateRMA(@RequestParam String idOrdenCalibracion, @RequestParam String estado, @RequestParam String observaciones, @RequestParam(required = false) String approvedBy) {
+    public ResponseEntity<OrdenCalibrationCertificateResponse> updateRMA(@RequestParam String idOrdenCalibracion, @RequestParam String estado, @RequestParam String observaciones, @RequestParam(required = false) String approvedBy, @RequestParam(required = false) String emailApprover) {
         OrdenCalibracion ordenCalibracion;
         try {
             log.info("Starting to read the data and update the order");
 
-            ordenCalibracion = ordenCalibracionService.updateRMA(idOrdenCalibracion, estado, observaciones, approvedBy);
+            ordenCalibracion = ordenCalibracionService.updateRMA(idOrdenCalibracion, estado, observaciones, approvedBy, emailApprover);
             OrdenCalibrationCertificateResponse ordenResponse = OrdenCalibrationCertificateResponse.builder()
                     .ordenCalibracion(ordenCalibracion)
                     .message("Updated")

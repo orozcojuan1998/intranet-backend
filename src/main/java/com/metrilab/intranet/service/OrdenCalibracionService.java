@@ -51,7 +51,7 @@ public class OrdenCalibracionService {
     }
 
     @Transactional
-    public OrdenCalibracion updateRMA(String id, String estado, String observaciones, String approvedBy) {
+    public OrdenCalibracion updateRMA(String id, String estado, String observaciones, String approvedBy, String emailApprover) {
         Optional<OrdenCalibracion> orden = ordenRepository.findById(Long.valueOf(id));
         if (orden.isPresent()) {
             String observacionesPrevias = orden.get().getCertificado().getObservaciones();
@@ -64,6 +64,7 @@ public class OrdenCalibracionService {
             certificado.setEstado(estado);
             certificado.setObservaciones(observaciones);
             if (approvedBy != null) {
+                filesService.createQRCertificate(certificado, emailApprover);
                 certificado.setApprovedBy(approvedBy);
                 certificado.setFechaCreacion(LocalDateTime.now().toLocalDate());
             }
