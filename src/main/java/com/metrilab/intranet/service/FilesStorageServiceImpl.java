@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -36,16 +37,17 @@ import java.util.stream.Stream;
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
     private final String BUCKET_NAME = "certificados-metrilab-" + Year.now().toString();
+    private final String METRILAB_OWNER_PASSWORD = "MetrIlaB-/*-ñ" + Year.now().toString();
     private final Path root = Paths.get("uploads");
     private final S3Client s3Client = S3Client.builder()
             .region(Region.US_EAST_1)
             .build();
     private final EmailService emailService;
 
+    @Autowired
     public FilesStorageServiceImpl(EmailService emailService) {
         this.emailService = emailService;
     }
-
 
     @Override
     public void init() {
@@ -61,7 +63,12 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     public UploadCertificateResponse save(MultipartFile file, String pw) {
         UploadCertificateResponse uploadCertificateResponse = new UploadCertificateResponse();
         AccessPermission ap = new AccessPermission();
-        var stpp = new StandardProtectionPolicy(pw, pw, ap);
+        ap.setCanFillInForm(false);
+        ap.setCanModify(false);
+        ap.setCanExtractContent(false);
+        ap.setCanAssembleDocument(false);
+        ap.setCanModifyAnnotations(false);
+        var stpp = new StandardProtectionPolicy(METRILAB_OWNER_PASSWORD, pw, ap);
         stpp.setEncryptionKeyLength(128);
         stpp.setPermissions(ap);
 
@@ -99,7 +106,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     public void createQRCertificate(Certificado certificado, String email) {
         String charset = "UTF-8";
         String path = root + File.separator + "QR_Certificado.png";
-        BitMatrix matrix = null;
+        BitMatrix matrix;
         try {
             matrix = new MultiFormatWriter().encode(
                     new String(certificado.getUrl().getBytes(charset), charset),

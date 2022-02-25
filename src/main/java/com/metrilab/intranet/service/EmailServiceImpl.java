@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService{
 
         Content content = new Content("text/html", "<strong>Se ha generado el siguiente certificado difital por favor verifique que los datos sean los correctos antes de enviarlo al cliente.</strong> " +
             "<p>La contraseña asignada al certificado es la siguiente: <strong> " + certificado.getPass() + " </strong><p/> " +
-            "<p>El cliente puede revisar el certificado en la siguiente URL:  <strong> " + certificado.getUrl() + "</strong>");
+            "<p>El cliente puede revisar el certificado en la siguiente URL:  <a href=" + certificado.getUrl()  + ">" + certificado.getUrl() + "</a>");
 
 
         Request request = new Request();
