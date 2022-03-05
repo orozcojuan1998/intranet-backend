@@ -32,25 +32,30 @@ public class EmailServiceImpl implements EmailService {
         String ensayosEmail = "dirensayos@metrilab.co";
         String firstEmailPart = "<strong>Se ha generado el siguiente ";
         String finalEmailPart = "por favor verifique que los datos sean los correctos antes de enviarlo al cliente.</strong>";
-        String emailToSend = certificateType.matches("^\\d{2}E-\\d{1,3}") ? ensayosEmail : tecnicaEmail;
+        String emailToSend = certificateType.matches("^\\d{2}E-\\d{1,3}.pdf") ? ensayosEmail : tecnicaEmail;
         String message;
-        if (certificateType.matches("^\\d{2}E-\\d{1,3}")){
+        String subject;
+        if (certificateType.matches("^\\d{2}E-\\d{1,3}.pdf")){
+            subject = "Nuevo Informe de Ensayo Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
             message = firstEmailPart + "Informe de Ensayo, " + finalEmailPart;
         }
-        else if (certificateType.matches("^\\d{2}IC-\\d{1,3}")){
+        else if (certificateType.matches("^\\d{2}IC-\\d{1,3}.pdf")){
             message = firstEmailPart + "Informe de Calificación, " + finalEmailPart;
+            subject = "Nuevo Informe de Calificación Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
         }
-        else if (certificateType.matches("^\\d{2}C-\\d{1,3}")){
+        else if (certificateType.matches("^\\d{2}C-\\d{1,3}.pdf")){
+            subject = "Nuevo Certificado de Calibración Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
             message = firstEmailPart + "Certificado de Calibración, " + finalEmailPart;
         }
-        else if (certificateType.matches("^\\d{2}EC-\\d{1,3}")){
-            message = firstEmailPart + "Evaluación de Conformidad, " + finalEmailPart;
+        else if (certificateType.matches("^\\d{2}EC-\\d{1,3}.pdf")){
+            subject = "Nueva Evaluación de Conformidad Digital Generada: " + certificado.getIdCertificado().split("\\.")[0];
+            message = "<strong>Se ha generado la siguiente " + "Evaluación de Conformidad, " + finalEmailPart;
         }
         else{
+            subject = "Nuevo Documento digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
             message = firstEmailPart + "Documento digital, " + finalEmailPart;
         }
 
-        String subject = "Nuevo Certificado Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
         Email to = new Email(emailToSend);
         Email ccEmail = new Email(reviewerEmail);
         Personalization personalization = new Personalization();
@@ -62,7 +67,6 @@ public class EmailServiceImpl implements EmailService {
         Content content = new Content("text/html", message +
                 "<p>La contraseña asignada al certificado es la siguiente: <strong> " + certificado.getPass() + " </strong><p/> " +
                 "<p>El cliente puede revisar el certificado en la siguiente URL:  <a href=" + certificado.getUrl() + ">" + certificado.getUrl() + "</a>");
-
 
         Request request = new Request();
         try {
