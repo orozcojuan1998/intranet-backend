@@ -20,15 +20,36 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl implements EmailService {
 
-    private final String tecnicaEmail = "dirtecnica@metrilab.co";
-    private final String ensayosEmail = "dirensayos@metrilab.co";
 
     @Override
     public void sendCertificateApproved(Certificado certificado, String reviewerEmail, String path) {
         SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-        String emailToSend = certificado.getIdCertificado().contains("C") ? tecnicaEmail : ensayosEmail;
+
+        String certificateType = certificado.getIdCertificado();
+        String tecnicaEmail = "dirtecnica@metrilab.co";
+        String ensayosEmail = "dirensayos@metrilab.co";
+        String firstEmailPart = "<strong>Se ha generado el siguiente ";
+        String finalEmailPart = "por favor verifique que los datos sean los correctos antes de enviarlo al cliente.</strong>";
+        String emailToSend = certificateType.matches("^\\d{2}E-\\d{1,3}") ? ensayosEmail : tecnicaEmail;
+        String message;
+        if (certificateType.matches("^\\d{2}E-\\d{1,3}")){
+            message = firstEmailPart + "Informe de Ensayo, " + finalEmailPart;
+        }
+        else if (certificateType.matches("^\\d{2}IC-\\d{1,3}")){
+            message = firstEmailPart + "Informe de Calificación, " + finalEmailPart;
+        }
+        else if (certificateType.matches("^\\d{2}C-\\d{1,3}")){
+            message = firstEmailPart + "Certificado de Calibración, " + finalEmailPart;
+        }
+        else if (certificateType.matches("^\\d{2}EC-\\d{1,3}")){
+            message = firstEmailPart + "Evaluación de Conformidad, " + finalEmailPart;
+        }
+        else{
+            message = firstEmailPart + "Documento digital, " + finalEmailPart;
+        }
+
         String subject = "Nuevo Certificado Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
         Email to = new Email(emailToSend);
         Email ccEmail = new Email(reviewerEmail);
@@ -38,9 +59,9 @@ public class EmailServiceImpl implements EmailService{
         personalization.setSubject(subject);
         Email from = new Email("it@metrilab.co");
 
-        Content content = new Content("text/html", "<strong>Se ha generado el siguiente certificado difital por favor verifique que los datos sean los correctos antes de enviarlo al cliente.</strong> " +
-            "<p>La contraseña asignada al certificado es la siguiente: <strong> " + certificado.getPass() + " </strong><p/> " +
-            "<p>El cliente puede revisar el certificado en la siguiente URL:  <a href=" + certificado.getUrl()  + ">" + certificado.getUrl() + "</a>");
+        Content content = new Content("text/html", message +
+                "<p>La contraseña asignada al certificado es la siguiente: <strong> " + certificado.getPass() + " </strong><p/> " +
+                "<p>El cliente puede revisar el certificado en la siguiente URL:  <a href=" + certificado.getUrl() + ">" + certificado.getUrl() + "</a>");
 
 
         Request request = new Request();
@@ -53,7 +74,7 @@ public class EmailServiceImpl implements EmailService{
             attachment.setContent(imageDataString);
             attachment.setType("image/png");
             attachment.setDisposition("attachment");
-            attachment.setFilename(certificado.getIdCertificado().split("\\.")[0]+".png");
+            attachment.setFilename(certificado.getIdCertificado().split("\\.")[0] + ".png");
             Mail mail = new Mail();
             mail.setFrom(from);
             mail.addPersonalization(personalization);
