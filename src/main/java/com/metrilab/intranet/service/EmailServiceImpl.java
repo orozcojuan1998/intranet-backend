@@ -32,10 +32,11 @@ public class EmailServiceImpl implements EmailService {
         String ensayosEmail = "dirensayos@metrilab.co";
         String firstEmailPart = "<strong>Se ha generado el siguiente ";
         String finalEmailPart = "por favor verifique que los datos sean los correctos antes de enviarlo al cliente.</strong>";
-        String emailToSend = certificateType.matches("^\\d{2}E-\\d{1,3}.pdf") ? ensayosEmail : tecnicaEmail;
+        boolean isEnsayo = certificateType.matches("^\\d{2}E-\\d{1,3}.pdf") || certificateType.matches("^\\d{2}E-P\\d{1,2}.pdf");
+        String emailToSend = isEnsayo  ? ensayosEmail : tecnicaEmail;
         String message;
         String subject;
-        if (certificateType.matches("^\\d{2}E-\\d{1,3}.pdf")){
+        if (isEnsayo){
             subject = "Nuevo Informe de Ensayo Digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
             message = firstEmailPart + "Informe de Ensayo, " + finalEmailPart;
         }
