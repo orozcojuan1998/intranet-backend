@@ -5,18 +5,17 @@ import com.metrilab.intranet.repository.CertificadoRepository;
 import com.metrilab.intranet.repository.EquipoRepository;
 import com.metrilab.intranet.repository.OrdenCalibracionRepository;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -124,6 +123,7 @@ public class OrdenCalibracionService {
         List<OrderCalibracionResponse> ordenesState = new ArrayList<>();
         log.info("Recolectando ordenes en estado de :" + estados);
         List<OrdenCalibracion> ordenesCalibracion = ordenRepository.findAll().stream().filter(orden -> estados.contains(orden.getCertificado().getEstado())).collect(Collectors.toList());
+        Collections.reverse(ordenesCalibracion);
         if (ordenesCalibracion.size() > 0) log.info("Se han encontrado ordenes que cumplan la condicion");
         ordenesCalibracion.forEach(orden -> {
             OrderCalibracionResponse ordenResponse = new OrderCalibracionResponse(orden.getId(), orden.getRma(), orden.getCertificado().getIdCertificado(), orden.getEquipo().getNombre(), orden.getCertificado().getEstado());
