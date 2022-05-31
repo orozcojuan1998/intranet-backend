@@ -64,7 +64,6 @@ public class OrderCalibracionController {
     public ResponseEntity<OrdenCalibracion> ordenRevision(@PathVariable @NotNull String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        headers.add("Cache-Control","no-store");
         try {
             Optional<OrdenCalibracion> ordenCalibracion = ordenCalibracionService.getOrdenById(id);
             log.info("Obteniendo la orden con id indicado");
