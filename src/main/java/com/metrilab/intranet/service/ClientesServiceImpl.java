@@ -81,6 +81,7 @@ public class ClientesServiceImpl implements ClientesService {
         if (contactoToUpdate.isPresent()){
             contactoToUpdate.get().setNombreContacto(updatedContact.getNombreContacto());
             contactoToUpdate.get().setCorreo(updatedContact.getCorreo());
+            contactoToUpdate.get().setCorreoAlternativo(updatedContact.getCorreoAlternativo());
             contactoToUpdate.get().setAreaTrabajo(updatedContact.getAreaTrabajo());
             contactoToUpdate.get().setCelular(updatedContact.getCelular());
             contactoToUpdate.get().setTelefono(updatedContact.getTelefono());

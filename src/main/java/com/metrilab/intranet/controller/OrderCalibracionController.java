@@ -21,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 @Controller
 @RequestMapping(value = "/orden-calibracion")
-public class OrderCalibraciónController {
+public class OrderCalibracionController {
 
     private final List<String> CERT_REVIEW = List.of("REVISION", "RECHAZADO_TECNICA", "NUEVA_REVISION");
     private final List<String> CERT_REVIEW_CORRECTION = List.of("NECESITA_CORRECCION");
@@ -64,6 +64,7 @@ public class OrderCalibraciónController {
     public ResponseEntity<OrdenCalibracion> ordenRevision(@PathVariable @NotNull String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
+        headers.add("Cache-Control","no-store");
         try {
             Optional<OrdenCalibracion> ordenCalibracion = ordenCalibracionService.getOrdenById(id);
             log.info("Obteniendo la orden con id indicado");

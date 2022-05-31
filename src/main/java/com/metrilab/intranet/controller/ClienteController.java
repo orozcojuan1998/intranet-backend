@@ -61,7 +61,7 @@ public class ClienteController {
         try {
             log.info("Trying to insert the client in the system");
             String nombre = String.valueOf(data.get("data").get("razonSocial"));
-            String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[-.,\\s]", "");
+            String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[,\\s]", "");
             String correo = String.valueOf(data.get("data").get("correo"));
             Sede clientSede = Sede.builder().pais(String.valueOf(data.get("data").get("pais")))
                     .departamento(String.valueOf(data.get("data").get("departamento")))
@@ -83,11 +83,12 @@ public class ClienteController {
     public ResponseEntity<Cliente> createNewClientContact(@RequestBody LinkedHashMap<String, LinkedHashMap<String, Object>> data) {
         Cliente cliente = new Cliente();
         try {
-            log.info("Trying to insert the client contact in the system");
+            log.info("Agregar nuevo contacto al cliente");
             String clientId = String.valueOf(data.get("data").get("id"));
             LinkedHashMap<String, String> contacto = (LinkedHashMap<String, String>) data.get("data").get("contacto");
             Contacto contactoCliente = Contacto.builder().nombreContacto(contacto.get("nombreContacto"))
                     .areaTrabajo(contacto.get("areaTrabajo")).correo(contacto.get("correo"))
+                    .correoAlternativo(contacto.get("correoAlternativo"))
                     .telefono(contacto.get("telefono")).celular(contacto.get("celular")).build();
             String sedeId = contacto.get("sede");
             cliente = clientesService.createClientContact(clientId, contactoCliente, sedeId);
@@ -125,7 +126,7 @@ public class ClienteController {
         try {
             log.info("Trying to update the client in the system");
             Integer clientId = (Integer) data.get("data").get("idClient");
-            String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[-.,\\s]", "");
+            String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[,\\s]", "");
             String razonSocial = String.valueOf(data.get("data").get("razonSocial"));
             String correo = String.valueOf(data.get("data").get("correo"));
 
@@ -143,12 +144,13 @@ public class ClienteController {
     public ResponseEntity<Cliente> updateExistingClientContact(@RequestBody LinkedHashMap<String, LinkedHashMap<String, Object>> data) {
         Cliente cliente = new Cliente();
         try {
-            log.info("Trying to insert the client sede in the system");
+            log.info("Edición del cliente en el sistema para el cliente enviado");
             Long clientId = Long.valueOf(String.valueOf(data.get("data").get("id")));
             Long contactId = Long.valueOf(String.valueOf(data.get("data").get("contactId")));
             LinkedHashMap<String, String> contacto = (LinkedHashMap<String, String>) data.get("data").get("contacto");
             Contacto contactoCliente = Contacto.builder().nombreContacto(contacto.get("nombreContacto"))
                     .areaTrabajo(contacto.get("areaTrabajo")).correo(contacto.get("correo"))
+                    .correoAlternativo(contacto.get("correoAlternativo"))
                     .telefono(contacto.get("telefono")).celular(contacto.get("celular")).build();
 
             cliente = clientesService.updateClientContact(clientId, contactId, contactoCliente);
@@ -165,7 +167,7 @@ public class ClienteController {
     public ResponseEntity<Cliente> updateExistingClientSede(@RequestBody LinkedHashMap<String, LinkedHashMap<String, Object>> data) {
         Cliente cliente = new Cliente();
         try {
-            log.info("Trying to insert the client sede in the system");
+            log.info("Editar sede del cliete enviado");
             String clientId = String.valueOf(data.get("data").get("id"));
             String sedeId = String.valueOf(data.get("data").get("sedeId"));
             LinkedHashMap<String, String> sede = (LinkedHashMap<String, String>) data.get("data").get("sede");

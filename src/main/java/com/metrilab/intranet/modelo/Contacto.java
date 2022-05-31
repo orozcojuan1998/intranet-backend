@@ -22,6 +22,7 @@ public class Contacto {
     private String nombreContacto;
     private String areaTrabajo;
     private String correo;
+    private String correoAlternativo;
     private String telefono;
     private String celular;
 
