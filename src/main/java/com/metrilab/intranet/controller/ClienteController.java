@@ -62,7 +62,7 @@ public class ClienteController {
             log.info("Trying to insert the client in the system");
             String nombre = String.valueOf(data.get("data").get("razonSocial"));
             String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[,\\s]", "");
-            String correo = String.valueOf(data.get("data").get("correo"));
+            String correo = String.valueOf(data.get("data").get("correo")).isEmpty() ? null : String.valueOf(data.get("data").get("correo"));
             Sede clientSede = Sede.builder().pais(String.valueOf(data.get("data").get("pais")))
                     .departamento(String.valueOf(data.get("data").get("departamento")))
                     .ciudad((String.valueOf(data.get("data").get("ciudad"))))
