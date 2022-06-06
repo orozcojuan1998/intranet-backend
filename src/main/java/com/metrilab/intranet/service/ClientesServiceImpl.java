@@ -61,13 +61,14 @@ public class ClientesServiceImpl implements ClientesService {
     }
 
     @Override
-    public Cliente updateClientBasicInfo(Long idClient, String nit, String razonSocial, String correo) {
+    public Cliente updateClientBasicInfo(Long idClient, String nit, String razonSocial, String correo, String correoFE) {
         Optional<Cliente> cliente = clienteRepository.findById(idClient);
         if (cliente.isPresent()) {
             Cliente clienteToUpdate = cliente.get();
             clienteToUpdate.setNit(nit);
             clienteToUpdate.setRazonSocial(razonSocial);
             clienteToUpdate.setCorreo(correo);
+            clienteToUpdate.setCorreoFE(correoFE);
             clienteRepository.save(clienteToUpdate);
             return clienteToUpdate;
         }
@@ -95,11 +96,16 @@ public class ClientesServiceImpl implements ClientesService {
     }
 
     @Override
-    public Cliente updateClientSede(Long idClient, Long idSede, Sede updatedSede) {
+    public Cliente updateClientSede(long idClient, long idSede, Sede updatedSede) {
         Optional<Cliente> cliente = Optional.of(new Cliente());
         Optional<Sede> sedeToUpdate = sedeRepository.findById(idSede);
         if (sedeToUpdate.isPresent()){
-            sedeRepository.save(updatedSede);
+            sedeToUpdate.get().setPais(updatedSede.getPais());
+            sedeToUpdate.get().setDepartamento(updatedSede.getDepartamento());
+            sedeToUpdate.get().setCiudad(updatedSede.getCiudad());
+            sedeToUpdate.get().setDireccion(updatedSede.getDireccion());
+            sedeToUpdate.get().setComplementoDireccion(updatedSede.getComplementoDireccion());
+            sedeRepository.save(sedeToUpdate.get());
             cliente = clienteRepository.findById(idClient);
         }
         return cliente.orElseGet(Cliente::new);

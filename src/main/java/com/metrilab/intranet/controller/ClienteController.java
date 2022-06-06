@@ -28,7 +28,7 @@ public class ClienteController {
     public ResponseEntity<Cliente> getClientById(@PathVariable @NotNull String id) {
         Cliente cliente = new Cliente();
         try {
-            log.info("Trying to get the clients in the system");
+            log.info("Obtener un cliente por su ID");
             cliente = clientesService.getClienteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(cliente);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class ClienteController {
     @PostMapping(path = "/new", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ClienteDTO>> createNewClientWithLocations(@RequestBody LinkedHashMap<String, LinkedHashMap<String, Object>> data) {
         try {
-            log.info("Trying to insert the client in the system");
+            log.info("Creando un nuevo cliente en el sistema");
             String nombre = String.valueOf(data.get("data").get("razonSocial"));
             String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[,\\s]", "");
             String correo = String.valueOf(data.get("data").get("correo")).isEmpty() ? null : String.valueOf(data.get("data").get("correo"));
@@ -67,6 +67,7 @@ public class ClienteController {
                     .departamento(String.valueOf(data.get("data").get("departamento")))
                     .ciudad((String.valueOf(data.get("data").get("ciudad"))))
                     .direccion((String.valueOf(data.get("data").get("direccion"))))
+                    .complementoDireccion((String.valueOf(data.get("data").get("complementoDireccion"))))
                     .build();
 
             clientesService.createClient(nombre, nit, correo, clientSede);
@@ -110,7 +111,9 @@ public class ClienteController {
             LinkedHashMap<String, String> sede = (LinkedHashMap<String, String>) data.get("data").get("sede");
             Sede sedeCliente = Sede.builder().pais(sede.get("pais"))
                     .departamento(sede.get("departamento")).ciudad(sede.get("ciudad"))
-                    .direccion(sede.get("direccion")).build();
+                    .direccion(sede.get("direccion"))
+                    .complementoDireccion(sede.get("complementoDireccion"))
+                    .build();
             cliente = clientesService.createClientSede(clientId, sedeCliente);
             return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
         } catch (Exception e) {
@@ -129,8 +132,9 @@ public class ClienteController {
             String nit = String.valueOf(data.get("data").get("nit")).replaceAll("[,\\s]", "");
             String razonSocial = String.valueOf(data.get("data").get("razonSocial"));
             String correo = String.valueOf(data.get("data").get("correo"));
+            String correoFE = String.valueOf(data.get("data").get("correoFE"));
 
-            cliente = clientesService.updateClientBasicInfo(Long.valueOf(clientId), nit, razonSocial, correo);
+            cliente = clientesService.updateClientBasicInfo(Long.valueOf(clientId), nit, razonSocial, correo, correoFE);
             return ResponseEntity.status(HttpStatus.OK).body(cliente);
         } catch (Exception e) {
             log.info(e.toString());
@@ -168,15 +172,17 @@ public class ClienteController {
         Cliente cliente = new Cliente();
         try {
             log.info("Editar sede del cliete enviado");
-            String clientId = String.valueOf(data.get("data").get("id"));
-            String sedeId = String.valueOf(data.get("data").get("sedeId"));
+            long clientId = Long.parseLong(String.valueOf(data.get("data").get("id")));
+            long sedeId = Long.parseLong(String.valueOf(data.get("data").get("sedeId")));
             LinkedHashMap<String, String> sede = (LinkedHashMap<String, String>) data.get("data").get("sede");
-            Sede sedeCliente = Sede.builder().id(Long.valueOf(sedeId)).pais(sede.get("pais"))
+            Sede sedeCliente = Sede.builder().id(sedeId).pais(sede.get("pais"))
                     .departamento(sede.get("departamento")).ciudad(sede.get("ciudad"))
-                    .direccion(sede.get("direccion")).build();
-            cliente = clientesService.createClientSede(clientId, sedeCliente);
+                    .direccion(sede.get("direccion"))
+                    .complementoDireccion(sede.get("complementoDireccion"))
+                    .build();
+            cliente = clientesService.updateClientSede(clientId, sedeId, sedeCliente);
 
-            cliente = clientesService.updateClientSede(Long.valueOf(clientId), Long.valueOf(sedeId), sedeCliente);
+            cliente = clientesService.updateClientSede(clientId, sedeId, sedeCliente);
             return ResponseEntity.status(HttpStatus.OK).body(cliente);
         } catch (Exception e) {
             log.info(e.toString());

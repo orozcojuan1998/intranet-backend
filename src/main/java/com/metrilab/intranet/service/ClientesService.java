@@ -18,11 +18,11 @@ public interface ClientesService {
 
     Cliente createClientSede(String idClient, Sede sede);
 
-    Cliente updateClientBasicInfo(Long idClient, String nit, String razonSocial, String correo);
+    Cliente updateClientBasicInfo(Long idClient, String nit, String razonSocial, String correo, String correoFE);
 
     Cliente updateClientContact(Long idClient, Long idContact, Contacto updatedContact);
 
-    Cliente updateClientSede(Long idClient, Long idSede, Sede updatedSede);
+    Cliente updateClientSede(long idClient, long idSede, Sede updatedSede);
 
     Cliente deleteClientContact(Long idClient, Long idContact);
 
