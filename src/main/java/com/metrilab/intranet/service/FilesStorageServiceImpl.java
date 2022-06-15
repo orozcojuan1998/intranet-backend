@@ -85,7 +85,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             pdd.save(root + File.separator + Objects.requireNonNull(file.getOriginalFilename()));
             log.info("Finishing securing the document");
             boolean wasFileUploaded = saveToS3(new File(root + File.separator + fileName), uploadCertificateResponse);
-            if (!wasFileUploaded){
+            if (!wasFileUploaded) {
                 log.error("El archivo no se pudo subir a S3");
             }
             log.info("File uploaded to S3");
@@ -115,6 +115,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
                     matrix,
                     path.substring(path.lastIndexOf('.') + 1),
                     Paths.get(path));
+            log.info("Iniciando envío del mail a áreas de interés");
             emailService.sendCertificateApproved(certificado, email, path);
             File myFile = new File(path);
             if (myFile.delete()) {

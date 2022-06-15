@@ -63,7 +63,9 @@ public class OrdenCalibracionService {
             certificado.setEstado(estado);
             certificado.setObservaciones(observaciones);
             if (approvedBy != null) {
+                log.info("Creando el QR para el certificado");
                 filesService.createQRCertificate(certificado, emailApprover);
+                log.info("Finalización creación QR y setear nombre del approver...");
                 certificado.setApprovedBy(approvedBy);
                 certificado.setFechaCreacion(LocalDateTime.now().toLocalDate());
             }

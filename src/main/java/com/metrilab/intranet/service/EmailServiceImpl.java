@@ -27,6 +27,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendCertificateApproved(Certificado certificado, String reviewerEmail, String path) {
         SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
 
+        log.info("Seteando datos básicos del email");
         String certificateType = certificado.getIdCertificado();
         String tecnicaEmail = "dirtecnica@metrilab.co";
         String ensayosEmail = "dirensayos@metrilab.co";
@@ -56,6 +57,7 @@ public class EmailServiceImpl implements EmailService {
             subject = "Nuevo Documento digital Generado: " + certificado.getIdCertificado().split("\\.")[0];
             message = firstEmailPart + "Documento digital, " + finalEmailPart;
         }
+        log.info("Finalización seteo del cuerpo del email");
 
         Email to = new Email(emailToSend);
         Email ccEmail = new Email(reviewerEmail);
@@ -71,6 +73,7 @@ public class EmailServiceImpl implements EmailService {
 
         Request request = new Request();
         try {
+            log.info("Iniciando envio del mensaje a remitentes en try catch block");
             Attachments attachment = new Attachments();
             Base64 encode = new Base64();
             FileInputStream fis = new FileInputStream(path);
@@ -91,7 +94,10 @@ public class EmailServiceImpl implements EmailService {
             Response response = sg.api(request);
             log.info("Response from email provider: " + response.getStatusCode());
             fis.close();
+            log.info("Envio completado sin errores");
         } catch (IOException ex) {
+            ex.printStackTrace();
+            log.info(ex.getMessage());
             log.error(ex.getMessage());
         }
     }
