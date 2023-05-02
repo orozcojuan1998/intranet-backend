@@ -27,6 +27,7 @@ public class Certificado {
     private LocalDate fechaCreacion;
     private LocalDate fechaSubida;
     private String observaciones;
+    private String urlImagen;
 
     public Certificado(){}
 

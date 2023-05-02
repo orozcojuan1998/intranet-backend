@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
     private final String BUCKET_NAME = "certificados-metrilab-" + Year.now().toString();
+    private final String BUCKET_NAME_IMAGES = "imagenes-metrilab";
     private final String METRILAB_OWNER_PASSWORD = "MetrIlaB-/*-ñ" + Year.now().toString();
     private final Path root = Paths.get("uploads");
     private final S3Client s3Client = S3Client.builder()
@@ -84,7 +85,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             // pdd.saveIncremental(os);
             pdd.save(root + File.separator + Objects.requireNonNull(file.getOriginalFilename()));
             log.info("Finishing securing the document");
-            boolean wasFileUploaded = saveToS3(new File(root + File.separator + fileName), uploadCertificateResponse);
+            boolean wasFileUploaded = saveToS3(new File(root + File.separator + fileName), uploadCertificateResponse, BUCKET_NAME);
             if (!wasFileUploaded) {
                 log.error("El archivo no se pudo subir a S3");
             }
@@ -103,9 +104,10 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     }
 
     @Override
-    public void createQRCertificate(Certificado certificado, String email) {
+    public UploadCertificateResponse createQRCertificate(Certificado certificado, String email) {
+        UploadCertificateResponse uploadCertificateResponse = new UploadCertificateResponse();
         String charset = "UTF-8";
-        String path = root + File.separator + "QR_Certificado.png";
+        String path = root + File.separator + "QR_Certificado" + certificado.getId() + ".png";
         BitMatrix matrix;
         try {
             matrix = new MultiFormatWriter().encode(
@@ -116,32 +118,35 @@ public class FilesStorageServiceImpl implements FilesStorageService {
                     path.substring(path.lastIndexOf('.') + 1),
                     Paths.get(path));
             log.info("Iniciando envío del mail a áreas de interés");
+
             emailService.sendCertificateApproved(certificado, email, path);
             File myFile = new File(path);
-            if (myFile.delete()) {
-                log.info("Eliminación del archivo temporal completada exitosamente");
+            boolean imagenSubmitted = saveToS3(myFile, uploadCertificateResponse, BUCKET_NAME_IMAGES);
+            if (myFile.delete() && imagenSubmitted) {
+                log.info("Eliminación del archivo temporal completada exitosamente, imagen subida con success");
             }
         } catch (WriterException | IOException e) {
             e.printStackTrace();
         }
+        return uploadCertificateResponse;
     }
 
 
     @Override
-    public boolean saveToS3(File file, UploadCertificateResponse certificateResponse) {
+    public boolean saveToS3(File file, UploadCertificateResponse certificateResponse, String bucket) {
         String key = file.getName();
         log.info("Uploading the following file to S3: " + key);
         try {
             S3Waiter s3Waiter = s3Client.waiter();
             PutObjectRequest objectRequest = PutObjectRequest.builder()
-                    .bucket(BUCKET_NAME)
+                    .bucket(bucket)
                     .key(key)
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
 
             s3Client.putObject(objectRequest, RequestBody.fromFile(file));
             HeadObjectRequest bucketRequestWait = HeadObjectRequest.builder()
-                    .bucket(BUCKET_NAME)
+                    .bucket(bucket)
                     .key(key)
                     .build();
 
@@ -149,7 +154,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             waiterResponse.matched().response().ifPresent(System.out::println);
             log.info(key + " is ready, uploading process was successful");
             certificateResponse.setKey(file.getName());
-            certificateResponse.setPublicUrl(s3Client.utilities().getUrl(x -> x.bucket(BUCKET_NAME).key(key)).toExternalForm());
+            certificateResponse.setPublicUrl(s3Client.utilities().getUrl(x -> x.bucket(bucket).key(key)).toExternalForm());
             return true;
         } catch (S3Exception e) {
             log.error(e.awsErrorDetails().errorMessage());

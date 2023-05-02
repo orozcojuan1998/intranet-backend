@@ -14,11 +14,11 @@ public interface FilesStorageService {
 
     UploadCertificateResponse save(MultipartFile file, String pw);
 
-    boolean saveToS3(File file, UploadCertificateResponse certificateResponse);
+    boolean saveToS3(File file, UploadCertificateResponse certificateResponse, String bucket);
 
     Resource load(String filename);
 
-    void createQRCertificate(Certificado certificado, String email);
+    UploadCertificateResponse createQRCertificate(Certificado certificado, String email);
 
     void deleteAll();
 
